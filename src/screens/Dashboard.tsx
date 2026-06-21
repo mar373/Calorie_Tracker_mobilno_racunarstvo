@@ -21,6 +21,8 @@ const MacroItem = ({ label, value, total, color, icon: Icon }: any) => (
     </View>
 );
 
+import { CircularProgress } from '../components/CircularProgress';
+
 export const Dashboard = ({ onShowReport, onAddLog, onEditLog, logs, calorieGoal, onUpdateGoal }: {
     onShowReport: () => void;
     onAddLog: () => void;
@@ -34,6 +36,7 @@ export const Dashboard = ({ onShowReport, onAddLog, onEditLog, logs, calorieGoal
 
     const totalCalories = logs.reduce((sum, log) => sum + log.calories, 0);
     const left = Math.max(0, calorieGoal - totalCalories);
+    const progress = Math.min(1, totalCalories / calorieGoal);
 
     const totalProtein = logs.reduce((sum, log) => sum + log.protein, 0);
     const totalCarbs = logs.reduce((sum, log) => sum + log.carbs, 0);
@@ -68,13 +71,18 @@ export const Dashboard = ({ onShowReport, onAddLog, onEditLog, logs, calorieGoal
                     setIsEditingGoal(true);
                 }}>
                     <Card className="items-center py-8 mb-6">
-                        <View className="w-48 h-48 rounded-full border-8 border-indigo-500/20 items-center justify-center">
+                        <CircularProgress
+                            size={200}
+                            strokeWidth={12}
+                            progress={progress}
+                            color={theme.colors.primary}
+                        >
                             <View className="items-center">
                                 <Flame size={32} color={theme.colors.primary} />
                                 <Text className="text-white text-4xl font-bold mt-2">{left}</Text>
                                 <Text className="text-slate-400 text-sm">kcal left / {calorieGoal}</Text>
                             </View>
-                        </View>
+                        </CircularProgress>
                         <View className="flex-row mt-8 space-x-8">
                             <MacroItem label="Protein" value={totalProtein} total={120} color="#fbbf24" icon={Zap} />
                             <MacroItem label="Carbs" value={totalCarbs} total={250} color="#6366f1" icon={Activity} />
