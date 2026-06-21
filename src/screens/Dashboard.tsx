@@ -36,13 +36,24 @@ export const Dashboard = ({ onShowReport, onAddLog, onEditLog, logs, calorieGoal
     const [newGoal, setNewGoal] = useState(calorieGoal.toString());
     const { user, logout } = useAuth();
 
-    const totalCalories = logs.reduce((sum, log) => sum + log.calories, 0);
+    // Filter logs to today only (midnight → midnight)
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+    const todayLogs = logs.filter(
+        (log) => log.timestamp >= todayStart.getTime() && log.timestamp <= todayEnd.getTime()
+    );
+
+    const today = new Date().toLocaleDateString('sr-RS', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    const totalCalories = todayLogs.reduce((sum, log) => sum + log.calories, 0);
     const left = Math.max(0, calorieGoal - totalCalories);
     const progress = Math.min(1, totalCalories / calorieGoal);
 
-    const totalProtein = logs.reduce((sum, log) => sum + log.protein, 0);
-    const totalCarbs = logs.reduce((sum, log) => sum + log.carbs, 0);
-    const totalFats = logs.reduce((sum, log) => sum + log.fats, 0);
+    const totalProtein = todayLogs.reduce((sum, log) => sum + log.protein, 0);
+    const totalCarbs = todayLogs.reduce((sum, log) => sum + log.carbs, 0);
+    const totalFats = todayLogs.reduce((sum, log) => sum + log.fats, 0);
 
     const handleSaveGoal = () => {
         const goalNum = parseInt(newGoal);
@@ -103,14 +114,17 @@ export const Dashboard = ({ onShowReport, onAddLog, onEditLog, logs, calorieGoal
                     </Card>
                 </TouchableOpacity>
 
-                <Text className="text-white text-lg font-bold mb-4">Daily Logs</Text>
+                <View className="flex-row justify-between items-center mb-4">
+                    <Text className="text-white text-lg font-bold">Dnevni obroci</Text>
+                    <Text className="text-slate-500 text-xs capitalize">{today}</Text>
+                </View>
 
-                {logs.length === 0 ? (
+                {todayLogs.length === 0 ? (
                     <View className="items-center py-10">
-                        <Text className="text-slate-500 italic">No logs today. Start eating!</Text>
+                        <Text className="text-slate-500 italic">Nema obroka danas. Počni jesti!</Text>
                     </View>
                 ) : (
-                    logs.map((log) => (
+                    todayLogs.map((log) => (
                         <TouchableOpacity key={log.id} onPress={() => onEditLog(log)}>
                             <Card className="flex-row items-center justify-between mb-3">
                                 <View className="flex-row items-center">
