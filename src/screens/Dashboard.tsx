@@ -60,9 +60,10 @@ export const Dashboard = ({ onShowReport, onAddLog, onEditLog, logs, calorieGoal
                     </View>
                     <TouchableOpacity
                         onPress={onShowReport}
-                        className="w-10 h-10 rounded-full bg-slate-800 items-center justify-center"
+                        className="flex-row items-center bg-slate-800 px-4 py-2 rounded-full"
                     >
-                        <Activity size={24} color={theme.colors.primary} />
+                        <Activity size={20} color={theme.colors.primary} className="mr-2" />
+                        <Text className="text-white font-medium">Report</Text>
                     </TouchableOpacity>
                 </View>
 
