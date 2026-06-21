@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import "./global.css";
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView, View } from 'react-native';
 import { Dashboard } from './src/screens/Dashboard';
 import WeeklyReport from './src/screens/WeeklyReport';
 import LogFood from './src/screens/LogFood';
@@ -36,30 +36,32 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950">
-      {currentScreen === 'dashboard' && (
-        <Dashboard
-          logs={logs}
-          onShowReport={() => setCurrentScreen('report')}
-          onAddLog={() => {
-            setEditingLog(null);
-            setCurrentScreen('log');
-          }}
-          onEditLog={handleEditLog}
-        />
-      )}
-      {currentScreen === 'report' && (
-        <WeeklyReport onBack={() => setCurrentScreen('dashboard')} />
-      )}
-      {currentScreen === 'log' && (
-        <LogFood
-          initialLog={editingLog}
-          onBack={() => setCurrentScreen('dashboard')}
-          onSave={handleSaveLog}
-          onDelete={handleDeleteLog}
-        />
-      )}
-      <StatusBar style="light" />
+    <SafeAreaView className="flex-1 bg-slate-950 items-center">
+      <View className="flex-1 w-full max-w-screen-md">
+        {currentScreen === 'dashboard' && (
+          <Dashboard
+            logs={logs}
+            onShowReport={() => setCurrentScreen('report')}
+            onAddLog={() => {
+              setEditingLog(null);
+              setCurrentScreen('log');
+            }}
+            onEditLog={handleEditLog}
+          />
+        )}
+        {currentScreen === 'report' && (
+          <WeeklyReport onBack={() => setCurrentScreen('dashboard')} />
+        )}
+        {currentScreen === 'log' && (
+          <LogFood
+            initialLog={editingLog}
+            onBack={() => setCurrentScreen('dashboard')}
+            onSave={handleSaveLog}
+            onDelete={handleDeleteLog}
+          />
+        )}
+        <StatusBar style="light" />
+      </View>
     </SafeAreaView>
   );
 }
