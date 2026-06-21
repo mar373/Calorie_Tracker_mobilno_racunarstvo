@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import "./global.css";
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView, View } from 'react-native';
+import { SafeAreaView, View, ActivityIndicator } from 'react-native';
 import { Dashboard } from './src/screens/Dashboard';
 import WeeklyReport from './src/screens/WeeklyReport';
 import LogFood from './src/screens/LogFood';
 import { FoodLog } from './src/utils/types';
 
 import { useStorage } from './src/hooks/useStorage';
+import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import { AuthScreen } from './src/screens/AuthScreen';
 
-export default function App() {
+function MainApp() {
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'report' | 'log'>('dashboard');
-  const { logs, calorieGoal, loading, addLog, updateLog, deleteLog, updateGoal } = useStorage();
+  const { logs, calorieGoal, loading: storageLoading, addLog, updateLog, deleteLog, updateGoal } = useStorage();
   const [editingLog, setEditingLog] = useState<FoodLog | null>(null);
 
   const handleSaveLog = (log: FoodLog) => {
@@ -34,6 +37,18 @@ export default function App() {
     setEditingLog(log);
     setCurrentScreen('log');
   };
+
+  if (authLoading) {
+    return (
+      <View className="flex-1 bg-slate-950 items-center justify-center">
+        <ActivityIndicator size="large" color="#6366f1" />
+      </View>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthScreen />;
+  }
 
   return (
     <View className="flex-1 bg-slate-950 items-center justify-center">
@@ -65,5 +80,13 @@ export default function App() {
       </View>
       <StatusBar style="light" />
     </View>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <MainApp />
+    </AuthProvider>
   );
 }

@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput } from 'react-native';
 import { Card } from '../components/Card';
 import { theme } from '../utils/theme';
-import { Plus, Flame, Activity, Zap, TrendingUp, Save, X } from 'lucide-react-native';
+import { Plus, Flame, Activity, Zap, TrendingUp, Save, X, LogOut } from 'lucide-react-native';
 import { FoodLog } from '../utils/types';
+import { useAuth } from '../contexts/AuthContext';
 
 const MacroItem = ({ label, value, total, color, icon: Icon }: any) => (
     <View className="flex-1 items-center">
@@ -33,6 +34,7 @@ export const Dashboard = ({ onShowReport, onAddLog, onEditLog, logs, calorieGoal
 }) => {
     const [isEditingGoal, setIsEditingGoal] = useState(false);
     const [newGoal, setNewGoal] = useState(calorieGoal.toString());
+    const { user, logout } = useAuth();
 
     const totalCalories = logs.reduce((sum, log) => sum + log.calories, 0);
     const left = Math.max(0, calorieGoal - totalCalories);
@@ -56,15 +58,23 @@ export const Dashboard = ({ onShowReport, onAddLog, onEditLog, logs, calorieGoal
                 <View className="flex-row justify-between items-center mb-8">
                     <View>
                         <Text className="text-slate-400 text-sm">Welcome back,</Text>
-                        <Text className="text-white text-2xl font-bold">Health Tracker</Text>
+                        <Text className="text-white text-2xl font-bold">{user?.name || "Korisnik"}</Text>
                     </View>
-                    <TouchableOpacity
-                        onPress={onShowReport}
-                        className="flex-row items-center bg-slate-800 px-4 py-2 rounded-full"
-                    >
-                        <Activity size={20} color={theme.colors.primary} className="mr-2" />
-                        <Text className="text-white font-medium">Report</Text>
-                    </TouchableOpacity>
+                    <View className="flex-row items-center">
+                        <TouchableOpacity
+                            onPress={onShowReport}
+                            className="flex-row items-center bg-slate-800 px-4 py-2 rounded-full mr-3"
+                        >
+                            <Activity size={20} color={theme.colors.primary} className="mr-2" />
+                            <Text className="text-white font-medium">Report</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={logout}
+                            className="w-10 h-10 items-center justify-center bg-red-500/10 border border-red-500/20 rounded-xl"
+                        >
+                            <LogOut size={20} color="#ef4444" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
                 <TouchableOpacity onPress={() => {
