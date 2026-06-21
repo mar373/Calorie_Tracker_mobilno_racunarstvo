@@ -11,7 +11,7 @@ import { useStorage } from './src/hooks/useStorage';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'report' | 'log'>('dashboard');
-  const { logs, loading, addLog, updateLog, deleteLog } = useStorage();
+  const { logs, calorieGoal, loading, addLog, updateLog, deleteLog, updateGoal } = useStorage();
   const [editingLog, setEditingLog] = useState<FoodLog | null>(null);
 
   const handleSaveLog = (log: FoodLog) => {
@@ -36,11 +36,13 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950 items-center">
-      <View className="flex-1 w-full max-w-screen-md">
+    <View className="flex-1 bg-slate-950 items-center justify-center">
+      <View className="flex-1 w-full max-w-xl bg-slate-950">
         {currentScreen === 'dashboard' && (
           <Dashboard
             logs={logs}
+            calorieGoal={calorieGoal}
+            onUpdateGoal={updateGoal}
             onShowReport={() => setCurrentScreen('report')}
             onAddLog={() => {
               setEditingLog(null);
@@ -60,8 +62,8 @@ export default function App() {
             onDelete={handleDeleteLog}
           />
         )}
-        <StatusBar style="light" />
       </View>
-    </SafeAreaView>
+      <StatusBar style="light" />
+    </View>
   );
 }

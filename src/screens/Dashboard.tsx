@@ -1,8 +1,9 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput } from 'react-native';
 import { Card } from '../components/Card';
 import { theme } from '../utils/theme';
-import { Plus, Flame, Activity, Zap, TrendingUp } from 'lucide-react-native';
+import { Plus, Flame, Activity, Zap, TrendingUp, Save, X } from 'lucide-react-native';
+import { FoodLog } from '../utils/types';
 
 const MacroItem = ({ label, value, total, color, icon: Icon }: any) => (
     <View className="flex-1 items-center">
@@ -20,21 +21,31 @@ const MacroItem = ({ label, value, total, color, icon: Icon }: any) => (
     </View>
 );
 
-import { FoodLog } from '../utils/types';
-
-export const Dashboard = ({ onShowReport, onAddLog, onEditLog, logs }: {
+export const Dashboard = ({ onShowReport, onAddLog, onEditLog, logs, calorieGoal, onUpdateGoal }: {
     onShowReport: () => void;
     onAddLog: () => void;
     onEditLog: (log: FoodLog) => void;
     logs: FoodLog[];
+    calorieGoal: number;
+    onUpdateGoal: (newGoal: number) => void;
 }) => {
+    const [isEditingGoal, setIsEditingGoal] = useState(false);
+    const [newGoal, setNewGoal] = useState(calorieGoal.toString());
+
     const totalCalories = logs.reduce((sum, log) => sum + log.calories, 0);
-    const goal = 2400;
-    const left = Math.max(0, goal - totalCalories);
+    const left = Math.max(0, calorieGoal - totalCalories);
 
     const totalProtein = logs.reduce((sum, log) => sum + log.protein, 0);
     const totalCarbs = logs.reduce((sum, log) => sum + log.carbs, 0);
     const totalFats = logs.reduce((sum, log) => sum + log.fats, 0);
+
+    const handleSaveGoal = () => {
+        const goalNum = parseInt(newGoal);
+        if (!isNaN(goalNum) && goalNum > 0) {
+            onUpdateGoal(goalNum);
+            setIsEditingGoal(false);
+        }
+    };
 
     return (
         <View className="flex-1">
@@ -52,20 +63,26 @@ export const Dashboard = ({ onShowReport, onAddLog, onEditLog, logs }: {
                     </TouchableOpacity>
                 </View>
 
-                <Card className="items-center py-8 mb-6">
-                    <View className="w-48 h-48 rounded-full border-8 border-indigo-500/20 items-center justify-center">
-                        <View className="items-center">
-                            <Flame size={32} color={theme.colors.primary} />
-                            <Text className="text-white text-4xl font-bold mt-2">{left}</Text>
-                            <Text className="text-slate-400 text-sm">kcal left</Text>
+                <TouchableOpacity onPress={() => {
+                    setNewGoal(calorieGoal.toString());
+                    setIsEditingGoal(true);
+                }}>
+                    <Card className="items-center py-8 mb-6">
+                        <View className="w-48 h-48 rounded-full border-8 border-indigo-500/20 items-center justify-center">
+                            <View className="items-center">
+                                <Flame size={32} color={theme.colors.primary} />
+                                <Text className="text-white text-4xl font-bold mt-2">{left}</Text>
+                                <Text className="text-slate-400 text-sm">kcal left / {calorieGoal}</Text>
+                            </View>
                         </View>
-                    </View>
-                    <View className="flex-row mt-8 space-x-8">
-                        <MacroItem label="Protein" value={totalProtein} total={120} color="#fbbf24" icon={Zap} />
-                        <MacroItem label="Carbs" value={totalCarbs} total={250} color="#6366f1" icon={Activity} />
-                        <MacroItem label="Fats" value={totalFats} total={70} color="#10b981" icon={TrendingUp} />
-                    </View>
-                </Card>
+                        <View className="flex-row mt-8 space-x-8">
+                            <MacroItem label="Protein" value={totalProtein} total={120} color="#fbbf24" icon={Zap} />
+                            <MacroItem label="Carbs" value={totalCarbs} total={250} color="#6366f1" icon={Activity} />
+                            <MacroItem label="Fats" value={totalFats} total={70} color="#10b981" icon={TrendingUp} />
+                        </View>
+                        <Text className="text-indigo-400 text-xs mt-4 opacity-70">Tap to change goal</Text>
+                    </Card>
+                </TouchableOpacity>
 
                 <Text className="text-white text-lg font-bold mb-4">Daily Logs</Text>
 
@@ -101,6 +118,43 @@ export const Dashboard = ({ onShowReport, onAddLog, onEditLog, logs }: {
             >
                 <Plus size={32} color="white" />
             </TouchableOpacity>
+
+            <Modal
+                visible={isEditingGoal}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setIsEditingGoal(false)}
+            >
+                <View className="flex-1 bg-black/60 items-center justify-center px-6">
+                    <Card className="w-full max-w-sm p-6 bg-slate-900 border border-slate-800">
+                        <View className="flex-row justify-between items-center mb-6">
+                            <Text className="text-white text-xl font-bold">Daily Calorie Goal</Text>
+                            <TouchableOpacity onPress={() => setIsEditingGoal(false)}>
+                                <X size={24} color="#94a3b8" />
+                            </TouchableOpacity>
+                        </View>
+
+                        <View className="mb-8">
+                            <Text className="text-slate-400 text-xs font-bold uppercase mb-2">Target Calories</Text>
+                            <TextInput
+                                className="bg-slate-800 h-14 rounded-2xl px-4 text-white text-xl font-bold border border-slate-700"
+                                keyboardType="numeric"
+                                value={newGoal}
+                                onChangeText={setNewGoal}
+                                autoFocus={true}
+                            />
+                        </View>
+
+                        <TouchableOpacity
+                            onPress={handleSaveGoal}
+                            className="bg-indigo-500 h-14 rounded-2xl items-center justify-center flex-row"
+                        >
+                            <Save size={20} color="white" className="mr-2" />
+                            <Text className="text-white font-bold text-lg">Update Goal</Text>
+                        </TouchableOpacity>
+                    </Card>
+                </View>
+            </Modal>
         </View>
     );
 };
