@@ -68,6 +68,40 @@ router.post('/', async (req, res) => {
     }
 });
 
+// GET /logs/goal — dohvati kalorijski cilj (MORA biti ispred /:id ruta!)
+router.get('/goal', async (req, res) => {
+    const userId = req.user.id;
+    const db = getDb();
+
+    try {
+        const snapshot = await db.ref(`userdata/${userId}/config/calorieGoal`).once('value');
+        const goal = snapshot.val() || 2400;
+        res.json({ calorieGoal: goal });
+    } catch (error) {
+        console.error('GET /logs/goal error:', error);
+        res.status(500).json({ error: 'Greška pri dohvatanju cilja.' });
+    }
+});
+
+// PUT /logs/goal — ažuriraj kalorijski cilj (MORA biti ispred /:id ruta!)
+router.put('/goal', async (req, res) => {
+    const userId = req.user.id;
+    const db = getDb();
+    const { calorieGoal } = req.body;
+
+    if (!calorieGoal || isNaN(Number(calorieGoal)) || Number(calorieGoal) <= 0) {
+        return res.status(400).json({ error: 'Nevažeći kalorijski cilj.' });
+    }
+
+    try {
+        await db.ref(`userdata/${userId}/config/calorieGoal`).set(Number(calorieGoal));
+        res.json({ calorieGoal: Number(calorieGoal) });
+    } catch (error) {
+        console.error('PUT /logs/goal error:', error);
+        res.status(500).json({ error: 'Greška pri ažuriranju cilja.' });
+    }
+});
+
 // PUT /logs/:id — ažuriraj obrok
 router.put('/:id', async (req, res) => {
     const userId = req.user.id;
@@ -114,40 +148,6 @@ router.delete('/:id', async (req, res) => {
     } catch (error) {
         console.error('DELETE /logs/:id error:', error);
         res.status(500).json({ error: 'Greška pri brisanju obroka.' });
-    }
-});
-
-// GET /logs/goal — dohvati kalorijski cilj
-router.get('/goal', async (req, res) => {
-    const userId = req.user.id;
-    const db = getDb();
-
-    try {
-        const snapshot = await db.ref(`userdata/${userId}/config/calorieGoal`).once('value');
-        const goal = snapshot.val() || 2400;
-        res.json({ calorieGoal: goal });
-    } catch (error) {
-        console.error('GET /logs/goal error:', error);
-        res.status(500).json({ error: 'Greška pri dohvatanju cilja.' });
-    }
-});
-
-// PUT /logs/goal — ažuriraj kalorijski cilj
-router.put('/goal', async (req, res) => {
-    const userId = req.user.id;
-    const db = getDb();
-    const { calorieGoal } = req.body;
-
-    if (!calorieGoal || isNaN(Number(calorieGoal)) || Number(calorieGoal) <= 0) {
-        return res.status(400).json({ error: 'Nevažeći kalorijski cilj.' });
-    }
-
-    try {
-        await db.ref(`userdata/${userId}/config/calorieGoal`).set(Number(calorieGoal));
-        res.json({ calorieGoal: Number(calorieGoal) });
-    } catch (error) {
-        console.error('PUT /logs/goal error:', error);
-        res.status(500).json({ error: 'Greška pri ažuriranju cilja.' });
     }
 });
 

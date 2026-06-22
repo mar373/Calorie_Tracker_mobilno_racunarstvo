@@ -25,6 +25,8 @@
   },
   "scripts": {
     "start": "expo start",
+    "dev": "bash start.sh",
+    "server": "node server/index.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web"

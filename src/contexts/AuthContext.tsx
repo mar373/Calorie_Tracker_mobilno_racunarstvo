@@ -52,6 +52,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loadStorageData();
   }, []);
 
+  const extractErrorMessage = (error: any): string => {
+    // Extract message from axios server response
+    if (error?.response?.data?.error) return error.response.data.error;
+    if (error?.response?.data?.message) return error.response.data.message;
+    if (error?.message === 'Network Error') return 'Ne mogu da se povežem sa serverom. Provjerite da li server radi.';
+    return error?.message || 'Došlo je do greške. Pokušajte ponovo.';
+  };
+
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
@@ -64,9 +72,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(jwtToken);
       setUser(loggedUser);
       setAuthToken(jwtToken);
-    } catch (error) {
+    } catch (error: any) {
       setAuthToken(null);
-      throw error;
+      throw new Error(extractErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -84,9 +92,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(jwtToken);
       setUser(registeredUser);
       setAuthToken(jwtToken);
-    } catch (error) {
+    } catch (error: any) {
       setAuthToken(null);
-      throw error;
+      throw new Error(extractErrorMessage(error));
     } finally {
       setLoading(false);
     }
