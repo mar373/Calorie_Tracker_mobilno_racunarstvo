@@ -26,6 +26,7 @@
   "scripts": {
     "start": "expo start",
     "dev": "bash start.sh",
+    "dev:win": "powershell -ExecutionPolicy Bypass -File start.ps1",
     "server": "node server/index.js",
     "android": "expo start --android",
     "ios": "expo start --ios",

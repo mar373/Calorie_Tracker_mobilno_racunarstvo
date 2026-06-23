@@ -10,11 +10,7 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-    origin: [
-        'http://localhost:8081',  // Expo web
-        'http://localhost:19006', // Expo web (stari port)
-        'http://localhost:3000',  // alternativni frontend port
-    ],
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
